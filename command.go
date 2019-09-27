@@ -197,7 +197,7 @@ func (c *cmd) execMigrations(migrationList []Migration) error {
 			return err
 		}
 
-		printSuccess(fmt.Sprintf("Migration %s has been executed in %v seconds", m.Name, execTimeInSeconds))
+		printSuccess("Migration %s has been executed in %v seconds", m.Name, execTimeInSeconds)
 	}
 
 	return nil
