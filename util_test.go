@@ -1,4 +1,4 @@
-package dbshift_core
+package dbshiftcore
 
 import (
 	"io/ioutil"

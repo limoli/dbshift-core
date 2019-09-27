@@ -1,4 +1,4 @@
-package dbshift_core
+package dbshiftcore
 
 import (
 	"errors"
@@ -14,11 +14,13 @@ type iDatabase interface {
 	ExecuteMigration([]byte) error
 }
 
+// Status is a structure used to identify the current (latest) migration version and type executed on database.
 type Status struct {
 	Version string
 	Type    migrationType
 }
 
+// Migration is a structure used to group the essential information regarding the database-schema migration.
 type Migration struct {
 	Version  string
 	Name     string
@@ -27,7 +29,6 @@ type Migration struct {
 }
 
 // Migration type
-
 type migrationType uint
 
 const (
@@ -38,9 +39,8 @@ const (
 func (m migrationType) String() string {
 	if m == migrationTypeDowngrade {
 		return "down"
-	} else {
-		return "up"
 	}
+	return "up"
 }
 
 // Migrations sort
@@ -83,9 +83,8 @@ func newMigration(version string, migrationsPath string, migrationName string, m
 func newMigrationTypeFromFileIndex(fileIndex uint) migrationType {
 	if fileIndex%2 == 0 {
 		return migrationTypeDowngrade
-	} else {
-		return migrationTypeUpgrade
 	}
+	return migrationTypeUpgrade
 }
 
 func newMigrationFromFile(fileName string, fileIndex uint, fileLocation string) (*Migration, error) {

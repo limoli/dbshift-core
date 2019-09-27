@@ -1,4 +1,4 @@
-package dbshift_core
+package dbshiftcore
 
 import (
 	"errors"
@@ -15,6 +15,7 @@ type cmd struct {
 	db  iDatabase
 }
 
+// NewCmd create a shell-commander object based on database interface and environmental configuration.
 func NewCmd(db iDatabase) (*cmd, error) {
 
 	// Check db implementation
@@ -25,12 +26,13 @@ func NewCmd(db iDatabase) (*cmd, error) {
 	// Get configuration via environment
 	cfg, err := getConfiguration()
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Bad configuration %s", err))
+		return nil, fmt.Errorf("bad configuration %s", err)
 	}
 
 	return &cmd{cfg: *cfg, db: db}, nil
 }
 
+// Run is used to execute the shell-commander.
 func (c *cmd) Run() {
 
 	// Run shell

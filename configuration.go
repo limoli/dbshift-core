@@ -1,7 +1,6 @@
-package dbshift_core
+package dbshiftcore
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -78,7 +77,7 @@ func getEnvVar(key string) (string, error) {
 
 	value := os.Getenv(key)
 	if value == "" {
-		err = errors.New(fmt.Sprintf("%s is not set", key))
+		err = fmt.Errorf("%s is not set", key)
 	}
 
 	return value, err
