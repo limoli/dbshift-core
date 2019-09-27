@@ -18,7 +18,7 @@ func getMigrations(migrationsPath string, status Status, toInclusiveVersion stri
 			return nil
 		}
 
-		migrationObj, err := newMigrationFromFile(fileName, fileIndex, path)
+		migrationObj, err := newMigrationFromFile(fileName, fileIndex)
 		if err != nil {
 			return err
 		}

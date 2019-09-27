@@ -33,12 +33,11 @@ func TestNewMigration(t *testing.T) {
 func TestMigrationFromFile(t *testing.T) {
 
 	const migrationName = "hello-world"
-	const fileLocation = "/srv/app/migrations"
 
 	version := time.Now().Format("20060102150405")
 	fileName := fmt.Sprintf("%s-%s", version, migrationName)
 
-	m, err := newMigrationFromFile(fileName, 33, fileLocation)
+	m, err := newMigrationFromFile(fileName, 33)
 	if err != nil {
 		t.Error(err)
 	}
@@ -51,10 +50,6 @@ func TestMigrationFromFile(t *testing.T) {
 		t.Error(fmt.Sprintf("%s != %s", m.Version, version))
 	}
 
-	if m.Location != fileLocation {
-		t.Error(fmt.Sprintf("%s != %s", m.Location, fileLocation))
-	}
-
 	if m.Type != migrationTypeUpgrade {
 		t.Error("unexpected migration type")
 	}
@@ -65,10 +60,9 @@ func TestMigrationIsUpgradable(t *testing.T) {
 
 	version := time.Now().Format("20060102150405")
 	m := Migration{
-		Version:  version,
-		Name:     "hello-world.up.sql",
-		Location: "/srv/app/migrations/" + version + "-" + "hello-world.up.sql",
-		Type:     migrationTypeUpgrade,
+		Version: version,
+		Name:    "hello-world.up.sql",
+		Type:    migrationTypeUpgrade,
 	}
 
 	// Current version => migration
@@ -107,10 +101,9 @@ func TestMigrationIsDowngradable(t *testing.T) {
 
 	version := time.Now().Format("20060102150405")
 	m := Migration{
-		Version:  version,
-		Name:     "hello-world.down.sql",
-		Location: "/srv/app/migrations/" + version + "-" + "hello-world.down.sql",
-		Type:     migrationTypeDowngrade,
+		Version: version,
+		Name:    "hello-world.down.sql",
+		Type:    migrationTypeDowngrade,
 	}
 
 	// Current version => migration

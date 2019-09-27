@@ -110,16 +110,17 @@ func (c *cmd) create(migrationName string) error {
 
 	// Ensure both downgrading and upgrading migrations share the same version
 	version := time.Now().Format("20060102150405")
+	dbExt := c.db.GetExtension()
 
 	// Write downgrade file
-	migrationDowngrade := newMigration(version, c.cfg.MigrationsPath, migrationName, migrationTypeDowngrade, c.db.GetExtension())
-	if err := ioutil.WriteFile(migrationDowngrade.Location, nil, 0664); err != nil {
+	migrationDowngrade := newMigration(version, migrationName, migrationTypeDowngrade, dbExt)
+	if err := ioutil.WriteFile(migrationDowngrade.getLocation(c.cfg.MigrationsPath), nil, 0664); err != nil {
 		return err
 	}
 
 	// Write upgrade file
-	migrationUpgrade := newMigration(version, c.cfg.MigrationsPath, migrationName, migrationTypeUpgrade, c.db.GetExtension())
-	if err := ioutil.WriteFile(migrationUpgrade.Location, nil, 0664); err != nil {
+	migrationUpgrade := newMigration(version, migrationName, migrationTypeUpgrade, dbExt)
+	if err := ioutil.WriteFile(migrationUpgrade.getLocation(c.cfg.MigrationsPath), nil, 0664); err != nil {
 		return err
 	}
 
@@ -180,7 +181,7 @@ func (c *cmd) execMigrations(migrationList []Migration) error {
 	for _, m := range migrationList {
 
 		// Read migration file
-		data, err := ioutil.ReadFile(m.Location)
+		data, err := ioutil.ReadFile(m.getLocation(c.cfg.MigrationsPath))
 		if err != nil {
 			return err
 		}

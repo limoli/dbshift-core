@@ -22,10 +22,9 @@ type Status struct {
 
 // Migration is a structure used to group the essential information regarding the database-schema migration.
 type Migration struct {
-	Version  string
-	Name     string
-	Location string
-	Type     migrationType
+	Version string
+	Name    string
+	Type    migrationType
 }
 
 // Migration type
@@ -69,15 +68,17 @@ func (s downgradePerspective) Less(i, j int) bool {
 	return s[i].Version > s[j].Version
 }
 
-func newMigration(version string, migrationsPath string, migrationName string, migrationType migrationType, extension string) Migration {
+func newMigration(version string, migrationName string, migrationType migrationType, extension string) Migration {
 	fileName := fmt.Sprintf("%s-%s.%s.%s", version, migrationName, migrationType.String(), extension)
-	location := filepath.Join(migrationsPath, fileName)
 	return Migration{
-		Version:  version,
-		Name:     fileName,
-		Location: location,
-		Type:     migrationType,
+		Version: version,
+		Name:    fileName,
+		Type:    migrationType,
 	}
+}
+
+func (m *Migration) getLocation(migrationsPath string) string {
+	return filepath.Join(migrationsPath, m.Name)
 }
 
 func newMigrationTypeFromFileIndex(fileIndex uint) migrationType {
@@ -87,17 +88,16 @@ func newMigrationTypeFromFileIndex(fileIndex uint) migrationType {
 	return migrationTypeUpgrade
 }
 
-func newMigrationFromFile(fileName string, fileIndex uint, fileLocation string) (*Migration, error) {
+func newMigrationFromFile(fileName string, fileIndex uint) (*Migration, error) {
 	indexDelimiter := strings.IndexRune(fileName, '-')
 	if indexDelimiter == -1 {
 		return nil, errors.New("bad migration file")
 	}
 
 	return &Migration{
-		Version:  fileName[:indexDelimiter],
-		Name:     fileName[indexDelimiter+1:],
-		Location: fileLocation,
-		Type:     newMigrationTypeFromFileIndex(fileIndex),
+		Version: fileName[:indexDelimiter],
+		Name:    fileName[indexDelimiter+1:],
+		Type:    newMigrationTypeFromFileIndex(fileIndex),
 	}, nil
 }
 
