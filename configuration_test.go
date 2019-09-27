@@ -8,6 +8,11 @@ import (
 
 func TestGetConfiguration(t *testing.T) {
 
+	err := os.Unsetenv("DBSHIFT_ABS_FOLDER_MIGRATIONS")
+	if err != nil {
+		t.Error(err)
+	}
+
 	if _, err := getConfiguration(); err == nil {
 		t.Error("expected missing DBSHIFT_ABS_FOLDER_MIGRATIONS environment variable")
 	}
