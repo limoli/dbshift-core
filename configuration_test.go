@@ -60,20 +60,19 @@ func TestGetConfigurationOption(t *testing.T) {
 		t.Error(err)
 	}
 
-	cfg, err := getConfiguration()
+	opts, err := getOptions()
 	if err != nil {
 		t.Error("expected set DBSHIFT_ABS_FOLDER_MIGRATIONS environment variable")
-	} else if !cfg.Options.IsCreateDisabled {
+	} else if !opts.IsCreateDisabled {
 		t.Error("expected true value for IsCreateDisabled")
-	} else if !cfg.Options.IsDowngradeDisabled {
+	} else if !opts.IsDowngradeDisabled {
 		t.Error("expected true value for IsDowngradeDisabled")
-	} else if !cfg.Options.IsUpgradeDisabled {
+	} else if !opts.IsUpgradeDisabled {
 		t.Error("expected true value for IsUpgradeDisabled")
 	}
 }
 
 func TestGetEnvVar(t *testing.T) {
-
 	if result, err := getEnvVar("unavailable_environment_variable!"); err == nil || result != "" {
 		t.Error("expected missing environment variable")
 	}
@@ -81,5 +80,4 @@ func TestGetEnvVar(t *testing.T) {
 	if result, err := getEnvVar("PWD"); err != nil || result == "" {
 		t.Error("expected set PWD environment variable")
 	}
-
 }
