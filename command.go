@@ -54,67 +54,56 @@ func (c *cmd) Run() {
 }
 
 func (c *cmd) getShellCommands() []*ishell.Cmd {
-	return []*ishell.Cmd{
-		{
-			Name:     "status",
-			Help:     "status",
-			LongHelp: "It returns the current status of database along migrations.",
-			Func: func(ctx *ishell.Context) {
-				if err := c.status(); err != nil {
-					printFailure(err.Error())
-				}
-			},
-		}, {
-			Name:     "create",
-			Help:     "create <entity-name>",
-			LongHelp: "It creates a entity with name.",
-			Func: func(ctx *ishell.Context) {
-				if len(ctx.Args) != 1 {
-					printFailure("missing entity name")
-					return
-				}
-
-				name := ctx.Args[0]
-				if err := c.create(name); err != nil {
-					printFailure(err.Error())
-				}
-			},
-		}, {
-			Name:     "upgrade",
-			Help:     "upgrade [toInclusiveVersion]",
-			LongHelp: "It upgrades all the migrations. If toInclusiveId is set, it upgrades all the migrations till that version.",
-			Func: func(ctx *ishell.Context) {
-				var endVersion string
-				if len(ctx.Args) == 1 {
-					endVersion = ctx.Args[0]
-				}
-
-				if err := c.upgrade(endVersion); err != nil {
-					printFailure(err.Error())
-					return
-				}
-			},
-		}, {
-			Name:     "downgrade",
-			Help:     "downgrade [toInclusiveVersion]",
-			LongHelp: "It downgrades all the migrations. If toInclusiveId is set, it downgrades all the migrations till that version.",
-			Func: func(ctx *ishell.Context) {
-				var endVersion string
-				if len(ctx.Args) == 1 {
-					endVersion = ctx.Args[0]
-				}
-
-				if err := c.downgrade(endVersion); err != nil {
-					printFailure(err.Error())
-					return
-				}
-			},
-		},
+	return []*ishell.Cmd{{
+		Name:     "status",
+		LongHelp: "It returns the current status of database along migrations.",
+		Func: func(ctx *ishell.Context) {
+			if err := c.status(); err != nil {
+				printFailure(err.Error())
+			}
+		}}, {
+		Name:     "create",
+		Help:     "create <entity-name>",
+		LongHelp: "It creates a entity with name.",
+		Func: func(ctx *ishell.Context) {
+			if len(ctx.Args) != 1 {
+				printFailure("missing entity name")
+				return
+			}
+			name := ctx.Args[0]
+			if err := c.create(name); err != nil {
+				printFailure(err.Error())
+			}
+		}}, {
+		Name:     "upgrade",
+		Help:     "upgrade [toInclusiveVersion]",
+		LongHelp: "It upgrades all the migrations. If toInclusiveId is set, it upgrades all the migrations till that version.",
+		Func: func(ctx *ishell.Context) {
+			var endVersion string
+			if len(ctx.Args) == 1 {
+				endVersion = ctx.Args[0]
+			}
+			if err := c.upgrade(endVersion); err != nil {
+				printFailure(err.Error())
+			}
+		}}, {
+		Name:     "downgrade",
+		Help:     "downgrade [toInclusiveVersion]",
+		LongHelp: "It downgrades all the migrations. If toInclusiveId is set, it downgrades all the migrations till that version.",
+		Func: func(ctx *ishell.Context) {
+			var endVersion string
+			if len(ctx.Args) == 1 {
+				endVersion = ctx.Args[0]
+			}
+			if err := c.downgrade(endVersion); err != nil {
+				printFailure(err.Error())
+			}
+		}},
 	}
 }
 
 func (c *cmd) create(migrationName string) error {
-
+	// Check option
 	if c.cfg.Options.IsCreateDisabled {
 		return errors.New("migration creating is disabled from options")
 	}
@@ -138,7 +127,7 @@ func (c *cmd) create(migrationName string) error {
 }
 
 func (c *cmd) upgrade(toInclusiveVersion string) error {
-
+	// Check option
 	if c.cfg.Options.IsUpgradeDisabled {
 		return errors.New("migration upgrading is disabled from options")
 	}
@@ -163,7 +152,7 @@ func (c *cmd) upgrade(toInclusiveVersion string) error {
 }
 
 func (c *cmd) downgrade(toInclusiveVersion string) error {
-
+	// Check option
 	if c.cfg.Options.IsDowngradeDisabled {
 		return errors.New("migration downgrading is disabled from options")
 	}
