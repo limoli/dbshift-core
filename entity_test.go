@@ -73,23 +73,23 @@ func TestMigrationIsUpgradable(t *testing.T) {
 
 	// Current version => migration
 	tests := map[Status]bool{
-		Status{
+		{
 			Version: time.Now().AddDate(0, 0, -1).Format("20060102150405"),
 			Type:    migrationTypeDowngrade,
 		}: true,
-		Status{
+		{
 			Version: time.Now().AddDate(0, 0, -2).Format("20060102150405"),
 			Type:    migrationTypeDowngrade,
 		}: true,
-		Status{
+		{
 			Version: time.Now().AddDate(0, 0, 1).Format("20060102150405"),
 			Type:    migrationTypeDowngrade,
 		}: false,
-		Status{
+		{
 			Version: m.Version,
 			Type:    migrationTypeUpgrade,
 		}: false,
-		Status{
+		{
 			Version: m.Version,
 			Type:    migrationTypeDowngrade,
 		}: true,
@@ -115,23 +115,23 @@ func TestMigrationIsDowngradable(t *testing.T) {
 
 	// Current version => migration
 	tests := map[Status]bool{
-		Status{
+		{
 			Version: time.Now().AddDate(0, 0, -1).Format("20060102150405"),
 			Type:    migrationTypeUpgrade,
 		}: false,
-		Status{
+		{
 			Version: time.Now().AddDate(0, 0, -2).Format("20060102150405"),
 			Type:    migrationTypeUpgrade,
 		}: false,
-		Status{
+		{
 			Version: time.Now().AddDate(0, 0, 1).Format("20060102150405"),
 			Type:    migrationTypeUpgrade,
 		}: true,
-		Status{
+		{
 			Version: m.Version,
 			Type:    migrationTypeDowngrade,
 		}: false,
-		Status{
+		{
 			Version: m.Version,
 			Type:    migrationTypeUpgrade,
 		}: true,
