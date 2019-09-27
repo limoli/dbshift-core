@@ -1,0 +1,1 @@
+DELETE FROM greetings WHERE description = 'bye-world';
