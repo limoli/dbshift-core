@@ -69,12 +69,15 @@ func (s downgradePerspective) Less(i, j int) bool {
 }
 
 func newMigration(version string, migrationName string, migrationType migrationType, extension string) Migration {
-	fileName := fmt.Sprintf("%s-%s.%s.%s", version, migrationName, migrationType.String(), extension)
 	return Migration{
 		Version: version,
-		Name:    fileName,
+		Name:    newMigrationFileName(version, migrationName, migrationType, extension),
 		Type:    migrationType,
 	}
+}
+
+func newMigrationFileName(version string, migrationName string, migrationType migrationType, extension string) string {
+	return fmt.Sprintf("%s-%s.%s.%s", version, migrationName, migrationType.String(), extension)
 }
 
 func (m *Migration) getFileName() string {

@@ -18,6 +18,41 @@ func TestMigrationType_String(t *testing.T) {
 	}
 }
 
+func TestMigrationTypeSort(t *testing.T) {
+
+	migrationList := []Migration{
+		{
+			Version: "123",
+			Name:    "hello-world.up.sql",
+			Type:    migrationTypeUpgrade,
+		},
+		{
+			Version: "456",
+			Name:    "bye-world.up.sql",
+			Type:    migrationTypeUpgrade,
+		},
+	}
+
+	upgradePerspective := upgradePerspective(migrationList)
+	if upgradePerspective.Len() != 2 {
+		t.Error("unexpected length of upgrading migrations")
+	}
+
+	if upgradePerspective.Less(1, 0) {
+		t.Error("unexpected less implementation for upgrading migrations")
+	}
+
+	downgradePerspective := downgradePerspective(migrationList)
+	if downgradePerspective.Len() != 2 {
+		t.Error("unexpected length of downgrading migrations")
+	}
+
+	if downgradePerspective.Less(0, 1) {
+		t.Error("unexpected less implementation for downgrading migrations")
+	}
+
+}
+
 func TestNewMigration(t *testing.T) {
 	tests := map[uint]migrationType{
 		0:  migrationTypeDowngrade,
@@ -36,6 +71,24 @@ func TestNewMigration(t *testing.T) {
 	for k, v := range tests {
 		if newMigrationTypeFromFileIndex(k) != v {
 			t.Error("unexpected migration type giving file index")
+		}
+	}
+}
+
+func TestNewMigrationFileName(t *testing.T) {
+
+	tests := map[string]string{
+		newMigrationFileName("123", "hello-world", migrationTypeUpgrade, "sql"):   "123-hello-world.up.sql",
+		newMigrationFileName("123", "hello-world", migrationTypeDowngrade, "sql"): "123-hello-world.down.sql",
+		newMigrationFileName("456", "bye-world", migrationTypeUpgrade, "sql"):     "456-bye-world.up.sql",
+		newMigrationFileName("456", "bye-world", migrationTypeDowngrade, "sql"):   "456-bye-world.down.sql",
+		newMigrationFileName("789", "new-world", migrationTypeUpgrade, "sql"):     "789-new-world.up.sql",
+		newMigrationFileName("789", "new-world", migrationTypeDowngrade, "sql"):   "789-new-world.down.sql",
+	}
+
+	for k, v := range tests {
+		if k != v {
+			t.Errorf("unexpected migration filename %s instead of %s", k, v)
 		}
 	}
 }
