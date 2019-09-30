@@ -11,6 +11,10 @@ func getMigrations(migrationsPath string, status Status, toInclusiveVersion stri
 
 	err := filepath.Walk(migrationsPath, func(path string, info os.FileInfo, err error) error {
 
+		if info == nil {
+			return nil
+		}
+
 		fileName := info.Name()
 
 		// Exclude directories and hidden files
