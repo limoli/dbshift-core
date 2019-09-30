@@ -26,7 +26,7 @@ func NewCmd(db iDatabase) (*cmd, error) {
 	// Get configuration via environment
 	cfg, err := getConfiguration()
 	if err != nil {
-		return nil, fmt.Errorf("bad configuration %s", err)
+		return nil, fmt.Errorf("bad configuration: %s", err)
 	}
 
 	return &cmd{cfg: *cfg, db: db}, nil
