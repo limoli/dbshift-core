@@ -30,7 +30,7 @@ func TestPrintSuccess(t *testing.T) {
 
 		os.Stdout = w
 
-		printSuccess(k, v...)
+		PrintSuccess(k, v...)
 
 		w.Close()
 		out, err := ioutil.ReadAll(r)
@@ -78,7 +78,7 @@ func TestPrintFailure(t *testing.T) {
 
 		os.Stdout = w
 
-		printFailure(k, v...)
+		PrintFailure(k, v...)
 
 		w.Close()
 		out, err := ioutil.ReadAll(r)

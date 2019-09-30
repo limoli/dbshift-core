@@ -45,7 +45,7 @@ func (c *cmd) Run() {
 
 	if len(os.Args) > 1 {
 		if err := shell.Process(os.Args[1:]...); err != nil {
-			printFailure(err.Error())
+			PrintFailure(err.Error())
 			os.Exit(10)
 		}
 	} else {
@@ -59,7 +59,7 @@ func (c *cmd) getShellCommands() []*ishell.Cmd {
 		LongHelp: "It returns the current status of database along migrations.",
 		Func: func(ctx *ishell.Context) {
 			if err := c.status(); err != nil {
-				printFailure(err.Error())
+				PrintFailure(err.Error())
 			}
 		}}, {
 		Name:     "create",
@@ -67,12 +67,12 @@ func (c *cmd) getShellCommands() []*ishell.Cmd {
 		LongHelp: "It creates a entity with name.",
 		Func: func(ctx *ishell.Context) {
 			if len(ctx.Args) != 1 {
-				printFailure("missing entity name")
+				PrintFailure("missing entity name")
 				return
 			}
 			name := ctx.Args[0]
 			if err := c.create(name); err != nil {
-				printFailure(err.Error())
+				PrintFailure(err.Error())
 			}
 		}}, {
 		Name:     "upgrade",
@@ -84,7 +84,7 @@ func (c *cmd) getShellCommands() []*ishell.Cmd {
 				endVersion = ctx.Args[0]
 			}
 			if err := c.upgrade(endVersion); err != nil {
-				printFailure(err.Error())
+				PrintFailure(err.Error())
 			}
 		}}, {
 		Name:     "downgrade",
@@ -96,7 +96,7 @@ func (c *cmd) getShellCommands() []*ishell.Cmd {
 				endVersion = ctx.Args[0]
 			}
 			if err := c.downgrade(endVersion); err != nil {
-				printFailure(err.Error())
+				PrintFailure(err.Error())
 			}
 		}},
 	}
@@ -197,7 +197,7 @@ func (c *cmd) execMigrations(migrationList []Migration) error {
 			return err
 		}
 
-		printSuccess("Migration %s has been executed in %v seconds", m.Name, execTimeInSeconds)
+		PrintSuccess("Migration %s has been executed in %v seconds", m.Name, execTimeInSeconds)
 	}
 
 	return nil
