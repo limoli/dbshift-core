@@ -102,8 +102,10 @@ func TestMigrationGetLocation(t *testing.T) {
 	migrationsPath := filepath.Join(wd, "example", "migrations")
 
 	tests := map[Migration]string{
-		newMigration("123", "hello-world", migrationTypeUpgrade, "sql"):   filepath.Join(migrationsPath, "123-hello-world.up.sql"),
-		newMigration("123", "hello-world", migrationTypeDowngrade, "sql"): filepath.Join(migrationsPath, "123-hello-world.down.sql"),
+		newMigration("20190926154408", "hello-world", migrationTypeUpgrade, "sql"):
+		filepath.Join(migrationsPath, "20190926154408-hello-world.up.sql"),
+		newMigration("20190926154408", "hello-world", migrationTypeDowngrade, "sql"):
+		filepath.Join(migrationsPath, "20190926154408-hello-world.down.sql"),
 	}
 
 	for k, v := range tests {
@@ -115,27 +117,35 @@ func TestMigrationGetLocation(t *testing.T) {
 }
 
 func TestMigrationFromFile(t *testing.T) {
-	const migrationName = "hello-world"
 
-	version := time.Now().Format("20060102150405")
-	fileName := fmt.Sprintf("%s-%s", version, migrationName)
-
-	m, err := newMigrationFromFile(fileName, 33)
-	if err != nil {
-		t.Error(err)
+	tests := map[string]Migration{
+		"20190926154408-hello-world.down.sql": {
+			Version: "20190926154408",
+			Name:    "20190926154408-hello-world.down.sql",
+			Type:    migrationTypeDowngrade,
+		},
+		"20190926154408-hello-world.up.sql": {
+			Version: "20190926154408",
+			Name:    "20190926154408-hello-world.up.sql",
+			Type:    migrationTypeUpgrade,
+		},
 	}
 
-	if m.Name != migrationName {
-		t.Error(fmt.Sprintf("%s != %s", m.Name, migrationName))
+	var fileIndex uint = 0
+	for k, v := range tests {
+		m, err := newMigrationFromFile(k, fileIndex)
+		if err != nil {
+			t.Error(err)
+		} else if m.Name != v.Name {
+			t.Error(fmt.Errorf("unexpected name %v instead of %v", m.Name, v.Name))
+		} else if m.Version != v.Version {
+			t.Error(fmt.Errorf("unexpected version %v instead of %v", m.Version, v.Version))
+		} else if m.Type != v.Type {
+			t.Error(fmt.Errorf("unexpected type %v instead of %v", m.Type, v.Type))
+		}
+		fileIndex++
 	}
 
-	if m.Version != version {
-		t.Error(fmt.Sprintf("%s != %s", m.Version, version))
-	}
-
-	if m.Type != migrationTypeUpgrade {
-		t.Error("unexpected migration type")
-	}
 }
 
 func TestMigrationIsUpgradable(t *testing.T) {

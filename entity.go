@@ -99,7 +99,7 @@ func newMigrationFromFile(fileName string, fileIndex uint) (*Migration, error) {
 
 	return &Migration{
 		Version: fileName[:indexDelimiter],
-		Name:    fileName[indexDelimiter+1:],
+		Name:    fileName,
 		Type:    newMigrationTypeFromFileIndex(fileIndex),
 	}, nil
 }
