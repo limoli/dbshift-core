@@ -67,3 +67,13 @@ More configurations can be offered by the single DbShift Client.
 1. Queries must be database name **agnostic**
 2. [SRP](https://en.wikipedia.org/wiki/Single_responsibility_principle) according to your description
 3. Write both upgrade and downgrade migrations 
+
+## Flags
+
+The following error-flags interval is reserved for core usage: `[1, 500]`.
+
+| Flag      | Description                                                           |
+| ---       | ---                                                                   |
+| `10`      | When no command is passed in the no-interactive mode.                 |
+
+The client implementation should start from `1000`.
