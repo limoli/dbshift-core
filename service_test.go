@@ -16,7 +16,7 @@ func TestGetMigrations(t *testing.T) {
 
 	migrationsFolder := filepath.Join(wd, "example", "migrations")
 	status := Status{
-		Version: time.Now().AddDate(0, 0, -1).Format("20060102150405"),
+		Version: time.Date(2019, time.September, 1, 0, 0, 0, 0, time.Local).Format("20060102150405"),
 		Type:    migrationTypeDowngrade,
 	}
 
@@ -24,14 +24,14 @@ func TestGetMigrations(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else if len(migrationUpgradeList) != 2 {
-		t.Error("unexpected counter of upgrading migrations")
+		t.Errorf("unexpected counter of upgrading migrations: %d", len(migrationUpgradeList))
 	}
 
 	migrationDowngradeList, err := getMigrations(migrationsFolder, status, "", isDowngradable)
 	if err != nil {
 		t.Error(err)
 	} else if len(migrationDowngradeList) != 0 {
-		t.Error("unexpected counter of downgrading migrations")
+		t.Errorf("unexpected counter of downgrading migrations: %d ", len(migrationDowngradeList))
 	}
 
 }
