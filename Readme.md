@@ -76,4 +76,16 @@ The following error-flags interval is reserved for core usage: `[1, 500]`.
 | ---       | ---                                                                   |
 | `10`      | When no command is passed in the no-interactive mode.                 |
 
+## Client implementation
+
+#### Flags
+
 The client implementation should start from `1000`.
+
+#### Environment
+
+The environment variables must have the following prefix: `DBSHIFT_CLI_<DBTYPE>`.
+
+Example for `MySQL`: 
+- Prefix: `DBSHIFT_CLI_MYSQL`
+- Variables: `DBSHIFT_CLI_MYSQL_X`, `DBSHIFT_CLI_MYSQL_Y`, `DBSHIFT_CLI_MYSQL_Z`
