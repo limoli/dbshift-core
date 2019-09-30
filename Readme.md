@@ -21,16 +21,18 @@ You can use a **DbShift Client** implementation according to your database:
 
 Set your [configuration](#configuration)
 
-Create migration. The following command will create two files `$timestamp.down.sql` and `$timestamp.up.sql` at your migrations folder.
+#### Create migration 
+It creates two files (`$timestamp.down.sql` and `$timestamp.up.sql`) at your migrations folder.
 ```bash
 dbshift create my-migration-description
 ```
-   
+
+#### Status   
 Check status of your migrations.
 ```bash
 dbshift status
 ```
-
+#### Upgrade
 Upgrade migrations.
 ```bash
 dbshift upgrade
@@ -39,6 +41,7 @@ dbshift upgrade
 dbshift upgrade <toInclusiveMigrationVersion>
 ```
 
+#### Downgrade
 Downgrade migrations.    
 ```bash
 dbshift downgrade
