@@ -229,12 +229,12 @@ func (c *cmd) status() error {
 
 	fmt.Println("Migrations to upgrade")
 	for _, m := range migrationUpgradeList {
-		fmt.Printf("%s - %s\n", m.Version, m.Name)
+		fmt.Println(m.Name)
 	}
 
 	fmt.Println("Migrations to downgrade")
 	for _, m := range migrationDowngradeList {
-		fmt.Printf("%s - %s\n", m.Version, m.Name)
+		fmt.Println(m.Name)
 	}
 
 	return nil
