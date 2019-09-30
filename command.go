@@ -46,7 +46,7 @@ func (c *cmd) Run() {
 	if len(os.Args) > 1 {
 		if err := shell.Process(os.Args[1:]...); err != nil {
 			PrintFailure(err.Error())
-			os.Exit(10)
+			os.Exit(1)
 		}
 	} else {
 		shell.Run()
