@@ -80,12 +80,8 @@ func newMigrationFileName(version string, migrationName string, migrationType mi
 	return fmt.Sprintf("%s-%s.%s.%s", version, migrationName, migrationType.String(), extension)
 }
 
-func (m *Migration) getFileName() string {
-	return fmt.Sprintf("%s-%s", m.Version, m.Name)
-}
-
 func (m *Migration) getLocation(migrationsPath string) string {
-	return filepath.Join(migrationsPath, m.getFileName())
+	return filepath.Join(migrationsPath, m.Name)
 }
 
 func newMigrationTypeFromFileIndex(fileIndex uint) migrationType {

@@ -93,28 +93,6 @@ func TestNewMigrationFileName(t *testing.T) {
 	}
 }
 
-func TestMigrationGetFilename(t *testing.T) {
-	tests := map[Migration]string{
-		{
-			Version: "123",
-			Name:    "hello-world.up.sql",
-			Type:    migrationTypeUpgrade,
-		}: "123-hello-world.up.sql",
-		{
-			Version: "123",
-			Name:    "hello-world.down.sql",
-			Type:    migrationTypeDowngrade,
-		}: "123-hello-world.down.sql",
-	}
-
-	for k, v := range tests {
-		fileName := k.getFileName()
-		if fileName != v {
-			t.Errorf("unexpected migration filename %s instead of %s", fileName, v)
-		}
-	}
-}
-
 func TestMigrationGetLocation(t *testing.T) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -124,16 +102,8 @@ func TestMigrationGetLocation(t *testing.T) {
 	migrationsPath := filepath.Join(wd, "example", "migrations")
 
 	tests := map[Migration]string{
-		{
-			Version: "123",
-			Name:    "hello-world.up.sql",
-			Type:    migrationTypeUpgrade,
-		}: filepath.Join(migrationsPath, "123-hello-world.up.sql"),
-		{
-			Version: "123",
-			Name:    "hello-world.down.sql",
-			Type:    migrationTypeDowngrade,
-		}: filepath.Join(migrationsPath, "123-hello-world.down.sql"),
+		newMigration("123", "hello-world", migrationTypeUpgrade, "sql"):   filepath.Join(migrationsPath, "123-hello-world.up.sql"),
+		newMigration("123", "hello-world", migrationTypeDowngrade, "sql"): filepath.Join(migrationsPath, "123-hello-world.down.sql"),
 	}
 
 	for k, v := range tests {
