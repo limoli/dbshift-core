@@ -2,9 +2,12 @@ package dbshiftcore
 
 import (
 	"errors"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 )
+
+var c *cmd
 
 type fakeDbImplementation struct{}
 
@@ -24,100 +27,60 @@ func (db *fakeDbImplementation) ExecuteMigration([]byte) error {
 	return errors.New("not implemented")
 }
 
-func TestNewCmd(t *testing.T) {
-	if _, err := NewCmd(nil); err == nil {
-		t.Error("expected missing db implementation error")
-	}
+func TestNewCmd_NoImplementation(t *testing.T) {
+	_, err := NewCmd(nil)
+	assert.NotNil(t, err, "expected missing db implementation error")
+}
 
-	if _, err := NewCmd(new(fakeDbImplementation)); err == nil {
-		t.Error("expected missing configuration")
-	}
+func TestNewCmd_NoConfiguration(t *testing.T) {
+	_, err := NewCmd(new(fakeDbImplementation))
+	assert.NotNil(t, err, "expected missing configuration")
+}
+
+func TestNewCmd(t *testing.T) {
+	err := setConfigurationWithCustomOptions("true", "true", "false")
+	assert.Nil(t, err, "expected nil error on set configuration with custom options")
+
+	c, err = NewCmd(new(fakeDbImplementation))
+	assert.Nil(t, err, "expected nil error")
+}
+
+func TestCmd_Run(t *testing.T) {
+	// Reset args in order to run shell in interactive mode
+	os.Args = []string{}
+	// Run shell in interactive mode
+	c.Run()
 }
 
 func TestGetShellCommands(t *testing.T) {
-	err := setConfigurationWithCustomOptions("false", "false", "false")
-	if err != nil {
-		t.Error(err)
-	}
-
-	cmd, err := NewCmd(new(fakeDbImplementation))
-	if err != nil {
-		t.Error(err)
-	}
-
-	cmds := cmd.getShellCommands()
-	if len(cmds) != 4 {
-		t.Errorf("unexpected amount of commands %d instead of %d", len(cmds), 4)
-	}
+	cmdList := c.getShellCommands()
+	assert.Equal(t, 4, len(cmdList), "expected specific amount of commands")
 }
 
 func TestCmdCreate(t *testing.T) {
-	err := setConfigurationWithCustomOptions("true", "true", "false")
-	if err != nil {
-		t.Error(err)
-	}
-
-	cmd, err := NewCmd(new(fakeDbImplementation))
-	if err != nil {
-		t.Error(err)
-	}
-
-	if err := cmd.create("my-beautiful-migration"); err == nil {
-		t.Error("expect error since no db implementation has been passed - db extension is used to generate the migration filename")
-	}
+	err := c.create("my-beautiful-migration")
+	assert.Error(t, err, "expect error since no db implementation has been passed - db extension is used to generate the migration filename")
 }
 
 func TestCmdStatus(t *testing.T) {
-	err := setConfigurationWithCustomOptions("false", "false", "false")
-	if err != nil {
-		t.Error(err)
-	}
-
-	cmd, err := NewCmd(new(fakeDbImplementation))
-	if err != nil {
-		t.Error(err)
-	}
-
-	if err := cmd.status(); err == nil {
-		t.Error("expect error since no db implementation has been passed")
-	}
+	err := c.status()
+	assert.Error(t, err, "expect error since no db implementation has been passed")
 }
 
 func TestCmdUpgrade(t *testing.T) {
-	err := setConfigurationWithCustomOptions("false", "false", "true")
-	if err != nil {
-		t.Error(err)
-	}
+	err := c.upgrade("")
+	assert.Error(t, err, "expect error since upgrading is disabled")
 
-	cmd, err := NewCmd(new(fakeDbImplementation))
-	if err != nil {
-		t.Error(err)
-	}
-
-	if err := cmd.upgrade(""); err == nil {
-		t.Error("expect error since upgrading is disabled")
-	}
 }
 
 func TestCmdDowngrade(t *testing.T) {
-	err := setConfigurationWithCustomOptions("false", "true", "false")
-	if err != nil {
-		t.Error(err)
-	}
-
-	cmd, err := NewCmd(new(fakeDbImplementation))
-	if err != nil {
-		t.Error(err)
-	}
-
-	if err := cmd.downgrade(""); err == nil {
-		t.Error("expect error since downgrading is disabled")
-	}
+	err := c.downgrade("")
+	assert.Error(t, err, "expect error since downgrading is disabled")
 }
 
 func setConfigurationWithCustomOptions(isCreateDisabled, isDowngradeDisabled, isUpgradeDisabled string) error {
-
 	migrationsPath := os.TempDir()
+
 	err := os.Setenv("DBSHIFT_ABS_FOLDER_MIGRATIONS", migrationsPath)
 	if err != nil {
 		return err
