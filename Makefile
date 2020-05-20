@@ -8,4 +8,5 @@ check-code:
 
 .PHONY: test-code
 test-code:
+	go clean -testcache
 	go test -v ./...
