@@ -90,6 +90,22 @@ func TestGetShellCommands(t *testing.T) {
 	assert.Equal(t, 4, len(cmdList), "expected specific amount of commands")
 }
 
+func TestCmd_HandleStatus(t *testing.T) {
+	assert.Nil(t, c.status(), "expect nil error handling status")
+}
+
+func TestCmd_HandleCreate(t *testing.T) {
+	assert.Nil(t, c.create("some-migration"), "expect nil error handling create")
+}
+
+func TestCmd_HandleUpgrade(t *testing.T) {
+	assert.Nil(t, c.upgrade(""), "expect nil error handling upgrade")
+}
+
+func TestCmd_HandleDowngrade(t *testing.T) {
+	assert.Nil(t, c.downgrade(""), "expect nil error handling downgrade")
+}
+
 func TestCmdCreate(t *testing.T) {
 	err := c.create("my-beautiful-migration")
 

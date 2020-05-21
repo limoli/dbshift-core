@@ -31,9 +31,9 @@ func getConfiguration() (*configuration, error) {
 	}
 
 	// Check if migrations path exists
-	_, err = os.Stat(folderMigrations)
-	if os.IsNotExist(err) {
-		return nil, fmt.Errorf("migrations folder does not exist at %s", folderMigrations)
+	err = checkMigrationPath(folderMigrations)
+	if err != nil {
+		return nil, err
 	}
 
 	// Optional values
@@ -46,6 +46,14 @@ func getConfiguration() (*configuration, error) {
 		MigrationsPath: folderMigrations,
 		Options:        *options,
 	}, nil
+}
+
+func checkMigrationPath(migrationsPath string) error {
+	_, err := os.Stat(migrationsPath)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("migrations folder does not exist at %s", migrationsPath)
+	}
+	return nil
 }
 
 func getOptions() (*configurationOptions, error) {

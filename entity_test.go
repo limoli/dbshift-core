@@ -2,7 +2,6 @@ package dbshiftcore
 
 import (
 	"github.com/stretchr/testify/assert"
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -124,10 +123,7 @@ func TestNewMigrationFileName(t *testing.T) {
 }
 
 func TestMigrationGetLocation(t *testing.T) {
-	wd, err := os.Getwd()
-	assert.Nil(t, err)
-
-	migrationsPath := filepath.Join(wd, "example", "migrations")
+	migrationsPath := setExistingMigrationPath(t)
 
 	inputs := []Migration{
 		newMigration("20190926154408", "hello-world", migrationTypeUpgrade, "sql"),
@@ -173,7 +169,23 @@ func TestMigrationFromFile(t *testing.T) {
 		assert.Equal(t, m.Version, expectedOutputs[i].Version)
 		assert.Equal(t, m.Type, expectedOutputs[i].Type)
 	}
+}
 
+func TestGetDelimiterIndexFromFileName(t *testing.T) {
+	var indexDelimiter *int
+	var err error
+
+	indexDelimiter, err = getDelimiterIndexFromFileName("12345678-my-query.sql", '-')
+	assert.Nil(t, err)
+	assert.Equal(t, 8, *indexDelimiter)
+
+	indexDelimiter, err = getDelimiterIndexFromFileName("-my-query.sql", '-')
+	assert.Nil(t, err)
+	assert.Equal(t, 0, *indexDelimiter)
+
+	indexDelimiter, err = getDelimiterIndexFromFileName("", '-')
+	assert.NotNil(t, err)
+	assert.Nil(t, indexDelimiter)
 }
 
 func TestMigrationIsUpgradable(t *testing.T) {
@@ -199,7 +211,23 @@ func TestMigrationIsUpgradable(t *testing.T) {
 	}, {
 		Version: m.Version,
 		Type:    migrationTypeDowngrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeUpgrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeDowngrade,
 	}}
+
+	inclusiveVersions := []string{
+		"",
+		"",
+		"",
+		"",
+		"",
+		time.Now().AddDate(0, 0, -1).Format("20060102150405"),
+		time.Now().AddDate(0, 0, 1).Format("20060102150405"),
+	}
 
 	expectedOutputs := []bool{
 		true,
@@ -207,12 +235,15 @@ func TestMigrationIsUpgradable(t *testing.T) {
 		false,
 		false,
 		true,
+		false,
+		true,
 	}
 
 	assert.Equal(t, len(inputs), len(expectedOutputs))
+	assert.Equal(t, len(inputs), len(inclusiveVersions))
 
 	for i := 0; i < len(inputs); i++ {
-		assert.Equal(t, isUpgradable(m, inputs[i], ""), expectedOutputs[i], "expected is upgradable result")
+		assert.Equal(t, isUpgradable(m, inputs[i], inclusiveVersions[i]), expectedOutputs[i], "expected is upgradable result")
 	}
 }
 
@@ -239,10 +270,28 @@ func TestMigrationIsDowngradable(t *testing.T) {
 	}, {
 		Version: m.Version,
 		Type:    migrationTypeUpgrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeDowngrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeUpgrade,
 	}}
+
+	inclusiveVersions := []string{
+		"",
+		"",
+		"",
+		"",
+		"",
+		time.Now().AddDate(0, 0, 1).Format("20060102150405"),
+		time.Now().AddDate(0, 0, -1).Format("20060102150405"),
+	}
 
 	expectedOutputs := []bool{
 		false,
+		false,
+		true,
 		false,
 		true,
 		false,
@@ -252,6 +301,6 @@ func TestMigrationIsDowngradable(t *testing.T) {
 	assert.Equal(t, len(inputs), len(expectedOutputs))
 
 	for i := 0; i < len(inputs); i++ {
-		assert.Equal(t, isDowngradable(m, inputs[i], ""), expectedOutputs[i], "expected is downgradable result")
+		assert.Equal(t, isDowngradable(m, inputs[i], inclusiveVersions[i]), expectedOutputs[i], "expected is downgradable result")
 	}
 }

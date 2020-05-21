@@ -1,5 +1,5 @@
 .PHONY: before-commit
-before-commit: check test
+before-commit: check test coverage
 
 .PHONY: check
 check:

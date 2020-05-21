@@ -92,16 +92,24 @@ func newMigrationTypeFromFileIndex(fileIndex uint) migrationType {
 }
 
 func newMigrationFromFile(fileName string, fileIndex uint) (*Migration, error) {
+	indexDelimiter, err := getDelimiterIndexFromFileName(fileName, '-')
+	if err != nil {
+		return nil, err
+	}
+
+	return &Migration{
+		Version: fileName[:*indexDelimiter],
+		Name:    fileName,
+		Type:    newMigrationTypeFromFileIndex(fileIndex),
+	}, nil
+}
+
+func getDelimiterIndexFromFileName(fileName string, delimiter rune) (*int, error) {
 	indexDelimiter := strings.IndexRune(fileName, '-')
 	if indexDelimiter == -1 {
 		return nil, errors.New("bad migration file")
 	}
-
-	return &Migration{
-		Version: fileName[:indexDelimiter],
-		Name:    fileName,
-		Type:    newMigrationTypeFromFileIndex(fileIndex),
-	}, nil
+	return &indexDelimiter, nil
 }
 
 type migrationFilterFn func(m Migration, status Status, toInclusiveVersion string) bool
@@ -132,6 +140,7 @@ func isUpgradable(m Migration, status Status, toInclusiveVersion string) bool {
 }
 
 func isDowngradable(m Migration, status Status, toInclusiveVersion string) bool {
+
 	// Only downgrading migrations
 	if m.Type != migrationTypeDowngrade {
 		return false
