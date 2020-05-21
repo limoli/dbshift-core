@@ -49,33 +49,30 @@ func getConfiguration() (*configuration, error) {
 }
 
 func getOptions() (*configurationOptions, error) {
+	var err error
 	options := configurationOptions{}
 
-	optionIsCreateDisabled, err := getEnvVar(envOptionIsCreateDisabled)
-	if err == nil {
-		options.IsCreateDisabled, err = strconv.ParseBool(optionIsCreateDisabled)
-		if err != nil {
-			return nil, err
-		}
+	if options.IsCreateDisabled, err = getBooleanOption(envOptionIsCreateDisabled); err != nil {
+		return nil, err
 	}
 
-	optionIsDowngradeDisabled, err := getEnvVar(envOptionIsDowngradeDisabled)
-	if err == nil {
-		options.IsDowngradeDisabled, err = strconv.ParseBool(optionIsDowngradeDisabled)
-		if err != nil {
-			return nil, err
-		}
+	if options.IsDowngradeDisabled, err = getBooleanOption(envOptionIsDowngradeDisabled); err != nil {
+		return nil, err
 	}
 
-	optionIsUpgradeDisabled, err := getEnvVar(envOptionIsUpgradeDisabled)
-	if err == nil {
-		options.IsUpgradeDisabled, err = strconv.ParseBool(optionIsUpgradeDisabled)
-		if err != nil {
-			return nil, err
-		}
+	if options.IsUpgradeDisabled, err = getBooleanOption(envOptionIsUpgradeDisabled); err != nil {
+		return nil, err
 	}
 
 	return &options, nil
+}
+
+func getBooleanOption(envKey string) (bool, error) {
+	optionEnv, err := getEnvVar(envKey)
+	if err == nil {
+		return strconv.ParseBool(optionEnv)
+	}
+	return false, nil
 }
 
 func getEnvVar(key string) (string, error) {

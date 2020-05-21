@@ -1,6 +1,7 @@
 package dbshiftcore
 
 import (
+	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
@@ -8,13 +9,13 @@ import (
 
 func TestGetConfiguration(t *testing.T) {
 
-	err := os.Unsetenv("DBSHIFT_ABS_FOLDER_MIGRATIONS")
+	err := os.Unsetenv(envPathMigrations)
 	if err != nil {
 		t.Error(err)
 	}
 
 	if _, err := getConfiguration(); err == nil {
-		t.Error("expected missing DBSHIFT_ABS_FOLDER_MIGRATIONS environment variable")
+		t.Errorf("expected missing %s environment variable", envPathMigrations)
 	}
 
 	wd, err := os.Getwd()
@@ -23,58 +24,112 @@ func TestGetConfiguration(t *testing.T) {
 	}
 
 	migrationsPath := filepath.Join(wd, "example", "migrations")
-	err = os.Setenv("DBSHIFT_ABS_FOLDER_MIGRATIONS", migrationsPath)
+	err = os.Setenv(envPathMigrations, migrationsPath)
 	if err != nil {
 		t.Error(err)
 	}
 
 	cfg, err := getConfiguration()
 	if err != nil {
-		t.Error("expected set DBSHIFT_ABS_FOLDER_MIGRATIONS environment variable")
+		t.Errorf("expected set %s environment variable", envPathMigrations)
 	} else if cfg.MigrationsPath != migrationsPath {
 		t.Errorf("expected same migration path: %s != %s", cfg.MigrationsPath, migrationsPath)
 	}
 
 }
 
-func TestGetConfigurationOption(t *testing.T) {
+func TestGetOptions(t *testing.T) {
 
 	wd, err := os.Getwd()
-	if err != nil {
-		t.Error(err)
-	}
+	assert.Nil(t, err)
 
 	migrationsPath := filepath.Join(wd, "example", "migrations")
-	err = os.Setenv("DBSHIFT_ABS_FOLDER_MIGRATIONS", migrationsPath)
-	if err != nil {
-		t.Error(err)
-	}
 
-	err = os.Setenv("DBSHIFT_OPTION_IS_CREATE_DISABLED", "true")
-	if err != nil {
-		t.Error(err)
-	}
+	err = os.Setenv(envPathMigrations, migrationsPath)
+	assert.Nil(t, err)
 
-	err = os.Setenv("DBSHIFT_OPTION_IS_DOWNGRADE_DISABLED", "true")
-	if err != nil {
-		t.Error(err)
-	}
+	err = os.Setenv(envOptionIsCreateDisabled, "true")
+	assert.Nil(t, err)
 
-	err = os.Setenv("DBSHIFT_OPTION_IS_UPGRADE_DISABLED", "true")
-	if err != nil {
-		t.Error(err)
-	}
+	err = os.Setenv(envOptionIsDowngradeDisabled, "true")
+	assert.Nil(t, err)
+
+	err = os.Setenv(envOptionIsUpgradeDisabled, "true")
+	assert.Nil(t, err)
 
 	opts, err := getOptions()
-	if err != nil {
-		t.Error("expected set DBSHIFT_ABS_FOLDER_MIGRATIONS environment variable")
-	} else if !opts.IsCreateDisabled {
-		t.Error("expected true value for IsCreateDisabled")
-	} else if !opts.IsDowngradeDisabled {
-		t.Error("expected true value for IsDowngradeDisabled")
-	} else if !opts.IsUpgradeDisabled {
-		t.Error("expected true value for IsUpgradeDisabled")
-	}
+	assert.Nil(t, err)
+	assert.True(t, opts.IsCreateDisabled)
+	assert.True(t, opts.IsDowngradeDisabled)
+	assert.True(t, opts.IsUpgradeDisabled)
+}
+
+func TestGetOptions_Default(t *testing.T) {
+	var err error
+
+	err = os.Unsetenv(envPathMigrations)
+	assert.Nil(t, err)
+
+	err = os.Unsetenv(envOptionIsCreateDisabled)
+	assert.Nil(t, err)
+
+	err = os.Unsetenv(envOptionIsDowngradeDisabled)
+	assert.Nil(t, err)
+
+	err = os.Unsetenv(envOptionIsUpgradeDisabled)
+	assert.Nil(t, err)
+
+	opts, err := getOptions()
+	assert.Nil(t, err)
+	assert.False(t, opts.IsCreateDisabled)
+	assert.False(t, opts.IsDowngradeDisabled)
+	assert.False(t, opts.IsUpgradeDisabled)
+}
+
+func TestGetOptions_Error(t *testing.T) {
+	wd, err := os.Getwd()
+	assert.Nil(t, err)
+
+	migrationsPath := filepath.Join(wd, "example", "migrations")
+
+	err = os.Setenv(envPathMigrations, migrationsPath)
+	assert.Nil(t, err)
+
+	err = os.Setenv(envOptionIsCreateDisabled, "ttruuee")
+	assert.Nil(t, err)
+
+	err = os.Setenv(envOptionIsDowngradeDisabled, "ttruuee")
+	assert.Nil(t, err)
+
+	err = os.Setenv(envOptionIsUpgradeDisabled, "faalssee")
+	assert.Nil(t, err)
+
+	_, err = getOptions()
+	assert.NotNil(t, err)
+}
+
+func TestGetBooleanOption(t *testing.T) {
+
+	var b bool
+	var err error
+
+	err = os.Setenv(envOptionIsCreateDisabled, "ttruuee")
+	assert.Nil(t, err)
+	b, err = getBooleanOption(envOptionIsCreateDisabled)
+	assert.NotNil(t, err)
+	assert.False(t, b)
+
+	err = os.Setenv(envOptionIsDowngradeDisabled, "false")
+	assert.Nil(t, err)
+	b, err = getBooleanOption(envOptionIsDowngradeDisabled)
+	assert.Nil(t, err)
+	assert.False(t, b)
+
+	err = os.Setenv(envOptionIsUpgradeDisabled, "true")
+	assert.Nil(t, err)
+	b, err = getBooleanOption(envOptionIsUpgradeDisabled)
+	assert.Nil(t, err)
+	assert.True(t, b)
 }
 
 func TestGetEnvVar(t *testing.T) {

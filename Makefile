@@ -12,4 +12,5 @@ test:
 
 .PHONE: coverage
 coverage:
+	go clean -cache
 	go tool cover -html=c.out

@@ -1,0 +1,6 @@
+.idea/
+*.test
+*.out
+
+# Used for tests
+tmp

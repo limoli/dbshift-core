@@ -1,7 +1,7 @@
 package dbshiftcore
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
@@ -54,96 +54,124 @@ func TestMigrationTypeSort(t *testing.T) {
 }
 
 func TestNewMigration(t *testing.T) {
-	tests := map[uint]migrationType{
-		0:  migrationTypeDowngrade,
-		1:  migrationTypeUpgrade,
-		2:  migrationTypeDowngrade,
-		3:  migrationTypeUpgrade,
-		4:  migrationTypeDowngrade,
-		5:  migrationTypeUpgrade,
-		6:  migrationTypeDowngrade,
-		7:  migrationTypeUpgrade,
-		8:  migrationTypeDowngrade,
-		9:  migrationTypeUpgrade,
-		10: migrationTypeDowngrade,
+
+	inputs := []uint{
+		0,
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9,
+		10,
+		11,
+		12,
 	}
 
-	for k, v := range tests {
-		if newMigrationTypeFromFileIndex(k) != v {
-			t.Error("unexpected migration type giving file index")
-		}
+	expectedOutputs := []migrationType{
+		migrationTypeDowngrade,
+		migrationTypeUpgrade,
+		migrationTypeDowngrade,
+		migrationTypeUpgrade,
+		migrationTypeDowngrade,
+		migrationTypeUpgrade,
+		migrationTypeDowngrade,
+		migrationTypeUpgrade,
+		migrationTypeDowngrade,
+		migrationTypeUpgrade,
+		migrationTypeDowngrade,
+		migrationTypeUpgrade,
+		migrationTypeDowngrade,
 	}
+
+	assert.Equal(t, len(inputs), len(expectedOutputs))
+
+	for i := 0; i < len(inputs); i++ {
+		assert.Equal(t, newMigrationTypeFromFileIndex(inputs[i]), expectedOutputs[i], "expected migration type giving file index")
+	}
+
 }
 
 func TestNewMigrationFileName(t *testing.T) {
 
-	tests := map[string]string{
-		newMigrationFileName("123", "hello-world", migrationTypeUpgrade, "sql"):   "123-hello-world.up.sql",
-		newMigrationFileName("123", "hello-world", migrationTypeDowngrade, "sql"): "123-hello-world.down.sql",
-		newMigrationFileName("456", "bye-world", migrationTypeUpgrade, "sql"):     "456-bye-world.up.sql",
-		newMigrationFileName("456", "bye-world", migrationTypeDowngrade, "sql"):   "456-bye-world.down.sql",
-		newMigrationFileName("789", "new-world", migrationTypeUpgrade, "sql"):     "789-new-world.up.sql",
-		newMigrationFileName("789", "new-world", migrationTypeDowngrade, "sql"):   "789-new-world.down.sql",
+	inputs := []string{
+		newMigrationFileName("123", "hello-world", migrationTypeUpgrade, "sql"),
+		newMigrationFileName("123", "hello-world", migrationTypeDowngrade, "sql"),
+		newMigrationFileName("456", "bye-world", migrationTypeUpgrade, "sql"),
+		newMigrationFileName("456", "bye-world", migrationTypeDowngrade, "sql"),
+		newMigrationFileName("789", "new-world", migrationTypeUpgrade, "sql"),
+		newMigrationFileName("789", "new-world", migrationTypeDowngrade, "sql"),
 	}
 
-	for k, v := range tests {
-		if k != v {
-			t.Errorf("unexpected migration filename %s instead of %s", k, v)
-		}
+	expectedOutputs := []string{
+		"123-hello-world.up.sql",
+		"123-hello-world.down.sql",
+		"456-bye-world.up.sql",
+		"456-bye-world.down.sql",
+		"789-new-world.up.sql",
+		"789-new-world.down.sql",
 	}
+
+	assert.Equal(t, len(inputs), len(expectedOutputs))
+
+	for i := 0; i < len(inputs); i++ {
+		assert.Equal(t, inputs[i], expectedOutputs[i], "expected migration filename")
+	}
+
 }
 
 func TestMigrationGetLocation(t *testing.T) {
 	wd, err := os.Getwd()
-	if err != nil {
-		t.Error(err)
-	}
+	assert.Nil(t, err)
 
 	migrationsPath := filepath.Join(wd, "example", "migrations")
 
-	tests := map[Migration]string{
-		newMigration("20190926154408", "hello-world", migrationTypeUpgrade, "sql"):
+	inputs := []Migration{
+		newMigration("20190926154408", "hello-world", migrationTypeUpgrade, "sql"),
+		newMigration("20190926154408", "hello-world", migrationTypeDowngrade, "sql"),
+	}
+
+	expectedOutputs := []string{
 		filepath.Join(migrationsPath, "20190926154408-hello-world.up.sql"),
-		newMigration("20190926154408", "hello-world", migrationTypeDowngrade, "sql"):
 		filepath.Join(migrationsPath, "20190926154408-hello-world.down.sql"),
 	}
 
-	for k, v := range tests {
-		fileName := k.getLocation(migrationsPath)
-		if fileName != v {
-			t.Errorf("unexpected migration filename %s instead of %s", fileName, v)
-		}
+	assert.Equal(t, len(inputs), len(expectedOutputs))
+
+	for i := 0; i < len(inputs); i++ {
+		fileName := inputs[i].getLocation(migrationsPath)
+		assert.Equal(t, fileName, expectedOutputs[i], "expected same filename for migration")
 	}
 }
 
 func TestMigrationFromFile(t *testing.T) {
 
-	tests := map[string]Migration{
-		"20190926154408-hello-world.down.sql": {
-			Version: "20190926154408",
-			Name:    "20190926154408-hello-world.down.sql",
-			Type:    migrationTypeDowngrade,
-		},
-		"20190926154408-hello-world.up.sql": {
-			Version: "20190926154408",
-			Name:    "20190926154408-hello-world.up.sql",
-			Type:    migrationTypeUpgrade,
-		},
+	inputs := []string{
+		"20190926154408-hello-world.down.sql",
+		"20190926154408-hello-world.up.sql",
 	}
 
-	var fileIndex uint = 0
-	for k, v := range tests {
-		m, err := newMigrationFromFile(k, fileIndex)
-		if err != nil {
-			t.Error(err)
-		} else if m.Name != v.Name {
-			t.Error(fmt.Errorf("unexpected name %v instead of %v", m.Name, v.Name))
-		} else if m.Version != v.Version {
-			t.Error(fmt.Errorf("unexpected version %v instead of %v", m.Version, v.Version))
-		} else if m.Type != v.Type {
-			t.Error(fmt.Errorf("unexpected type %v instead of %v", m.Type, v.Type))
-		}
-		fileIndex++
+	expectedOutputs := []Migration{{
+		Version: "20190926154408",
+		Name:    "20190926154408-hello-world.down.sql",
+		Type:    migrationTypeDowngrade,
+	}, {
+		Version: "20190926154408",
+		Name:    "20190926154408-hello-world.up.sql",
+		Type:    migrationTypeUpgrade,
+	}}
+
+	assert.Equal(t, len(inputs), len(expectedOutputs))
+
+	for i := 0; i < len(inputs); i++ {
+		m, err := newMigrationFromFile(inputs[i], uint(i))
+		assert.Nil(t, err)
+		assert.Equal(t, m.Name, expectedOutputs[i].Name)
+		assert.Equal(t, m.Version, expectedOutputs[i].Version)
+		assert.Equal(t, m.Type, expectedOutputs[i].Type)
 	}
 
 }
@@ -156,34 +184,35 @@ func TestMigrationIsUpgradable(t *testing.T) {
 		Type:    migrationTypeUpgrade,
 	}
 
-	// Current version => migration
-	tests := map[Status]bool{
-		{
-			Version: time.Now().AddDate(0, 0, -1).Format("20060102150405"),
-			Type:    migrationTypeDowngrade,
-		}: true,
-		{
-			Version: time.Now().AddDate(0, 0, -2).Format("20060102150405"),
-			Type:    migrationTypeDowngrade,
-		}: true,
-		{
-			Version: time.Now().AddDate(0, 0, 1).Format("20060102150405"),
-			Type:    migrationTypeDowngrade,
-		}: false,
-		{
-			Version: m.Version,
-			Type:    migrationTypeUpgrade,
-		}: false,
-		{
-			Version: m.Version,
-			Type:    migrationTypeDowngrade,
-		}: true,
+	inputs := []Status{{
+		Version: time.Now().AddDate(0, 0, -1).Format("20060102150405"),
+		Type:    migrationTypeDowngrade,
+	}, {
+		Version: time.Now().AddDate(0, 0, -2).Format("20060102150405"),
+		Type:    migrationTypeDowngrade,
+	}, {
+		Version: time.Now().AddDate(0, 0, 1).Format("20060102150405"),
+		Type:    migrationTypeDowngrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeUpgrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeDowngrade,
+	}}
+
+	expectedOutputs := []bool{
+		true,
+		true,
+		false,
+		false,
+		true,
 	}
 
-	for k, v := range tests {
-		if isUpgradable(m, k, "") != v {
-			t.Error("unexpected is upgradable result")
-		}
+	assert.Equal(t, len(inputs), len(expectedOutputs))
+
+	for i := 0; i < len(inputs); i++ {
+		assert.Equal(t, isUpgradable(m, inputs[i], ""), expectedOutputs[i], "expected is upgradable result")
 	}
 }
 
@@ -195,33 +224,34 @@ func TestMigrationIsDowngradable(t *testing.T) {
 		Type:    migrationTypeDowngrade,
 	}
 
-	// Current version => migration
-	tests := map[Status]bool{
-		{
-			Version: time.Now().AddDate(0, 0, -1).Format("20060102150405"),
-			Type:    migrationTypeUpgrade,
-		}: false,
-		{
-			Version: time.Now().AddDate(0, 0, -2).Format("20060102150405"),
-			Type:    migrationTypeUpgrade,
-		}: false,
-		{
-			Version: time.Now().AddDate(0, 0, 1).Format("20060102150405"),
-			Type:    migrationTypeUpgrade,
-		}: true,
-		{
-			Version: m.Version,
-			Type:    migrationTypeDowngrade,
-		}: false,
-		{
-			Version: m.Version,
-			Type:    migrationTypeUpgrade,
-		}: true,
+	inputs := []Status{{
+		Version: time.Now().AddDate(0, 0, -1).Format("20060102150405"),
+		Type:    migrationTypeUpgrade,
+	}, {
+		Version: time.Now().AddDate(0, 0, -2).Format("20060102150405"),
+		Type:    migrationTypeUpgrade,
+	}, {
+		Version: time.Now().AddDate(0, 0, 1).Format("20060102150405"),
+		Type:    migrationTypeUpgrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeDowngrade,
+	}, {
+		Version: m.Version,
+		Type:    migrationTypeUpgrade,
+	}}
+
+	expectedOutputs := []bool{
+		false,
+		false,
+		true,
+		false,
+		true,
 	}
 
-	for k, v := range tests {
-		if isDowngradable(m, k, "") != v {
-			t.Error("unexpected is upgradable result")
-		}
+	assert.Equal(t, len(inputs), len(expectedOutputs))
+
+	for i := 0; i < len(inputs); i++ {
+		assert.Equal(t, isDowngradable(m, inputs[i], ""), expectedOutputs[i], "expected is downgradable result")
 	}
 }
