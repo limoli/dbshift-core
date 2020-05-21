@@ -13,4 +13,5 @@ test:
 .PHONE: coverage
 coverage:
 	go clean -cache
+	go test -v -coverprofile=c.out ./...
 	go tool cover -html=c.out
