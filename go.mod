@@ -11,5 +11,5 @@ require (
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/stretchr/testify v1.4.0
-	golang.org/x/sys v0.0.0-20200519105757-fe76b779f299 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
